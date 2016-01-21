@@ -1,5 +1,5 @@
 
-xBrowse: MacOSX Development Instance
+xBrowse: Linux Development Instance at DBHi
 ====================================
 
 The steps below can be used to set up an xBrowse development instance on your local MacOSX laptop or desktop.
@@ -26,9 +26,7 @@ relative to `${XBROWSE_INSTALL_DIR}`.
 
 ## Install
 
-NOTE: root access may be required for the brew install commands. 
-
-0. Install [homebrew](http://brew.sh/) if it's not installed already. To check if it's already installed, run: `brew --version`.  
+NOTE: root access may be required for some install commands. 
   
 0. Create subdirectories:  
    `cd ${XBROWSE_INSTALL_DIR}`  
@@ -41,15 +39,13 @@ NOTE: root access may be required for the brew install commands.
     `wget ftp://dbnsfp:dbnsfp@dbnsfp.softgenetics.com/dbNSFPv2.9.zip;  unzip -d dbNSFP dbNSFPv2.9.zip`  
     `wget ftp://ftp.ncbi.nih.gov/pub/clinvar/vcf_GRCh37/clinvar.vcf.gz*`  
     `wget http://xbrowse.broadinstitute.org/static/bundle/ExAC.r0.3.sites.vep.popmax.clinvar.vcf.gz`  
-    `# TODO: omim`  
   
     `cd ${XBROWSE_INSTALL_DIR}/data/projects`  
     `wget http://xbrowse.broadinstitute.org/static/bundle/1kg_project.tar.gz;  tar -xzf 1kg_project.tar.gz`  
 
     While these are downloading, you can proceed with the next steps.  
 
-0. Download and install VEP. It's used by xBrowse to annotate variants. Also, we install tabix as we need it to optimize the VEP cache.  
-   `brew install tabix`  
+0. Download and install VEP. It's used by xBrowse to annotate variants. Also, we need tabix to optimize the VEP cache which is in  /nas/is1/bin/tabix
    `cd ${XBROWSE_INSTALL_DIR}`  
    `wget https://github.com/Ensembl/ensembl-tools/archive/release/78.zip`  
    `unzip 78.zip`  
@@ -60,18 +56,16 @@ NOTE: root access may be required for the brew install commands.
 
    While it's installing, you may want to proceed with the next steps in a new terminal.  
 
-0. Install MongoDB. This is a NoSQL database that will hold large static datasets such as variants, annotations, etc.  
-   `brew install mongodb`  
-   `brew services start mongodb`  
+0. Add MongoDB to your PATH. This is a NoSQL database that will hold large static datasets such as variants, annotations, etc.  
+   Mongodb is in: /nas/is1/bin/mongodb/mongodb-linux-x86_64-3.2.1/bin/mongod
    `mongod --dbpath <directory where you want to store db files> &    # start MongoDB in the background`  
 
 0. Install MySQL. A MySQL database isn't actually used, but the python mysql library (which is used to access Ensembl) requires MySQL to be installed.  
-   `brew install mysql`  
+   path to mysql: /usr/bin/mysql  
   
 0. Install python v2.7 if it's not installed already:  
-   `brew install python    # this should install python 2.7`  
-   `easy_install pip       # installs the python package installer`  
-  
+  path to python2.7: /usr/bin/python2.7
+
 0. Clone the xbrowse repo from github:  
    `cd ${XBROWSE_INSTALL_DIR}/code`  
    `git clone https://github.com/xbrowse/xbrowse.git`  
@@ -81,20 +75,19 @@ NOTE: root access may be required for the brew install commands.
    `export PYTHONPATH=${XBROWSE_INSTALL_DIR}/code/xbrowse/deploy/mac_osx/xbrowse_settings:$PYTHONPATH`  
 
 0. Install python virtualenv and virtualenvwrapper. This allows specific versions of python libraries to be installed as needed for xBrowse without interfering with previously-installed libraries.  
-   `/usr/local/bin/pip install virtualenvwrapper`  
+   `/usr/bin/pip install virtualenvwrapper`  
 
-   and add these lines to your `~/.bashrc`:  
+   and add the following 4 lines to your `~/.bashrc`:  
    `export VIRTUALENVWRAPPER_VIRTUALENV_ARGS='--no-site-packages'  #  isolate new environments from global site-packages directory`  
    `export WORKON_HOME=$HOME/.virtualenvs`  
    `export PROJECT_HOME=$HOME/code`  
-   `source /usr/local/bin/virtualenvwrapper.sh`  
+   `source /usr/bin/virtualenvwrapper.sh`  
   
 0. Create a virtualenv and install all needed python libraries.  
    `mkvirtualenv xbrowse`  
    `cd ${XBROWSE_INSTALL_DIR}/code/xbrowse`  
    `pip install -r server_requirements_prereqs.txt`  
    `pip install -r server_requirements.txt`  
-
 
 ## Load example data
 
@@ -108,21 +101,21 @@ NOTE: root access may be required for the brew install commands.
 0. Load data from ${XBROWSE_INSTALL_DIR}/data/reference_data into the database.  
    `./manage.py load_resources`  
 
-  This will take ~20 minutes (a sequence of progress bars will show).  
+  This will take ~2 hours (a sequence of progress bars will show).  
   While it's loading, you may want to proceed with the next steps in a new terminal (but remember to repeat all of step 1).
 
 0. Create superuser(s). This user will have access to all xBrowse projects on your development instance.  
    `./manage.py createsuperuser   # it will ask you to create a username and password`  
 
 0. Start the development server:  
-   `./manage.py runserver 8000`  
+   `./manage.py runserver 10.30.4.241:8000`  
 
-    You can now open [http://localhost:8000](http://localhost:8000) in your browser and login using the superuser credentials.  
+    You can now open [http://raboso:8000](http://raboso:8000) in your browser and login using the superuser credentials.  
 
 0. Create the 1kg example project:  
    `./manage.py add_project 1kg`  
    
-   If you now refresh [http://localhost:8000](http://localhost:8000), you should see the project appear.  
+   If you now refresh [http://raboso:8000](http://raboso:8000), you should see the project appear.  
 
 0. Initialize the project with the example data we downloaded earlier:  
    `./manage.py load_project_dir 1kg ${XBROWSE_INSTALL_DIR}/data/projects/1kg_project`  
